@@ -24,7 +24,6 @@ const Index = () => {
   useEffect(() => {
     if (isChatOpen) {
       document.body.classList.add('chat-open');
-      
       return () => {
         document.body.classList.remove('chat-open');
       };
@@ -58,8 +57,8 @@ const Index = () => {
       )}
 
       {isChatOpen && (
-        <div className="fixed inset-0 bg-background" style={{ height: '100%' }}>
-          <header className="fixed top-0 left-0 right-0 z-[9999] bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between" style={{ position: 'fixed', top: 0 }}>
+        <div className="fixed inset-0 flex flex-col bg-background">
+          <header className="sticky top-0 left-0 right-0 z-[60] bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Chat Assistant</h2>
             <button
               onClick={() => setIsChatOpen(false)}
@@ -71,17 +70,7 @@ const Index = () => {
 
           <div 
             ref={chatBodyRef}
-            className="overflow-y-auto p-4 space-y-4 touch-none"
-            style={{
-              height: 'calc(100% - 8rem)',
-              marginTop: '4rem',
-              paddingBottom: '4rem',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: '4rem'
-            }}
+            className="flex-1 overflow-y-auto p-4 space-y-4 touch-none"
           >
             {messages.map((msg, index) => (
               <div
@@ -108,7 +97,7 @@ const Index = () => {
 
           <form
             onSubmit={sendMessage}
-            className="fixed bottom-0 left-0 right-0 z-[9999] p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
+            className="sticky bottom-0 left-0 right-0 z-[60] p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
           >
             <div className="flex gap-2">
               <input
