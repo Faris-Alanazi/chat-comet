@@ -12,6 +12,7 @@ const Index = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatBodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -24,18 +25,36 @@ const Index = () => {
   const handleViewportChange = useCallback(() => {
     if (window.visualViewport) {
       const viewport = window.visualViewport;
-      const height = viewport.height;
+      const currentHeight = viewport.height;
+      const windowHeight = window.innerHeight;
+      
+      // Check if keyboard is likely open (viewport height significantly less than window height)
+      const isKeyboardVisible = currentHeight < windowHeight * 0.8;
+      setKeyboardOpen(isKeyboardVisible);
+
       if (chatBodyRef.current) {
-        chatBodyRef.current.style.maxHeight = `${height - 120}px`;
+        const headerHeight = 64; // Adjust based on your header height
+        const inputHeight = 72; // Adjust based on your input container height
+        const availableHeight = isKeyboardVisible ? currentHeight : windowHeight;
+        const newHeight = availableHeight - headerHeight - inputHeight;
+        
+        chatBodyRef.current.style.height = `${newHeight}px`;
+        chatBodyRef.current.style.maxHeight = `${newHeight}px`;
       }
     }
   }, []);
 
   useEffect(() => {
     if (isChatOpen && window.visualViewport) {
+      // Initial setup
+      handleViewportChange();
+      
       window.visualViewport.addEventListener("resize", handleViewportChange);
+      window.addEventListener("resize", handleViewportChange);
+      
       return () => {
         window.visualViewport.removeEventListener("resize", handleViewportChange);
+        window.removeEventListener("resize", handleViewportChange);
       };
     }
   }, [isChatOpen, handleViewportChange]);
@@ -81,7 +100,7 @@ const Index = () => {
 
             <div
               ref={chatBodyRef}
-              className="flex-1 overflow-y-auto p-4 space-y-4"
+              className="flex-1 overflow-y-auto p-4 space-y-4 transition-all duration-200"
             >
               {messages.map((msg, index) => (
                 <div
@@ -108,7 +127,10 @@ const Index = () => {
 
             <form
               onSubmit={sendMessage}
-              className="p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
+              className={cn(
+                "p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10 transition-all duration-200",
+                keyboardOpen ? "mb-0" : "mb-0"
+              )}
             >
               <div className="flex gap-2">
                 <input

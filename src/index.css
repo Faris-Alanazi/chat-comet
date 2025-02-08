@@ -61,3 +61,9 @@
 .animate-fade-in {
   animation: fade-in 0.3s ease-out forwards;
 }
+
+/* Add smooth transitions for keyboard interactions */
+.chat-interface {
+  transition: all 0.2s ease-out;
+}
+
