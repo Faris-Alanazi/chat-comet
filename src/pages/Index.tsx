@@ -58,8 +58,8 @@ const Index = () => {
       )}
 
       {isChatOpen && (
-        <div className="fixed inset-0 bg-background">
-          <header className="fixed top-0 inset-x-0 z-[9999] bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-background" style={{ height: '100%' }}>
+          <header className="fixed top-0 left-0 right-0 z-[9999] bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between" style={{ position: 'fixed', top: 0 }}>
             <h2 className="text-lg font-semibold">Chat Assistant</h2>
             <button
               onClick={() => setIsChatOpen(false)}
@@ -71,10 +71,16 @@ const Index = () => {
 
           <div 
             ref={chatBodyRef}
-            className="h-[calc(100vh-8rem)] mt-16 overflow-y-auto p-4 space-y-4 touch-none"
+            className="overflow-y-auto p-4 space-y-4 touch-none"
             style={{
-              height: 'calc(100vh - 8rem)',
-              paddingBottom: '4rem'
+              height: 'calc(100% - 8rem)',
+              marginTop: '4rem',
+              paddingBottom: '4rem',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: '4rem'
             }}
           >
             {messages.map((msg, index) => (
@@ -102,7 +108,7 @@ const Index = () => {
 
           <form
             onSubmit={sendMessage}
-            className="fixed bottom-0 inset-x-0 z-[9999] p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
+            className="fixed bottom-0 left-0 right-0 z-[9999] p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
           >
             <div className="flex gap-2">
               <input
