@@ -12,7 +12,6 @@ const Index = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatBodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -22,50 +21,16 @@ const Index = () => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  const handleViewportChange = useCallback(() => {
-    if (window.visualViewport) {
-      const viewport = window.visualViewport;
-      const currentHeight = viewport.height;
-      const windowHeight = window.innerHeight;
-      
-      // Check if keyboard is likely open (viewport height significantly less than window height)
-      const isKeyboardVisible = currentHeight < windowHeight * 0.8;
-      setKeyboardOpen(isKeyboardVisible);
-
-      if (chatBodyRef.current) {
-        const headerHeight = 64; // Header height
-        const inputHeight = 72; // Input container height
-        const availableHeight = isKeyboardVisible ? currentHeight : windowHeight;
-        const newHeight = availableHeight - headerHeight - inputHeight;
-        
-        // Apply the new height with a slight delay to ensure smooth transition
-        requestAnimationFrame(() => {
-          if (chatBodyRef.current) {
-            chatBodyRef.current.style.height = `${newHeight}px`;
-          }
-        });
-      }
-    }
-  }, []);
-
   useEffect(() => {
     if (isChatOpen) {
       // Add chat-open class to body
       document.body.classList.add('chat-open');
       
-      // Initial setup
-      handleViewportChange();
-      
-      window.visualViewport?.addEventListener("resize", handleViewportChange);
-      window.addEventListener("resize", handleViewportChange);
-      
       return () => {
         document.body.classList.remove('chat-open');
-        window.visualViewport?.removeEventListener("resize", handleViewportChange);
-        window.removeEventListener("resize", handleViewportChange);
       };
     }
-  }, [isChatOpen, handleViewportChange]);
+  }, [isChatOpen]);
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,8 +59,8 @@ const Index = () => {
       )}
 
       {isChatOpen && (
-        <div className="fixed inset-0 bg-background touch-none flex flex-col overflow-hidden animate-fade-in">
-          <div className="bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between sticky top-0 z-50">
+        <div className="fixed inset-0 bg-background flex flex-col h-[100dvh] touch-none">
+          <div className="bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Chat Assistant</h2>
             <button
               onClick={() => setIsChatOpen(false)}
@@ -105,9 +70,9 @@ const Index = () => {
             </button>
           </div>
 
-          <div
+          <div 
             ref={chatBodyRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4 transition-all duration-300 ease-in-out will-change-[height]"
+            className="flex-1 overflow-y-auto p-4 space-y-4"
           >
             {messages.map((msg, index) => (
               <div
@@ -134,10 +99,7 @@ const Index = () => {
 
           <form
             onSubmit={sendMessage}
-            className={cn(
-              "p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10 transition-transform duration-300 ease-in-out sticky bottom-0 z-50",
-              keyboardOpen ? "translate-y-0" : "translate-y-0"
-            )}
+            className="p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
           >
             <div className="flex gap-2">
               <input
