@@ -2,10 +2,16 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ChatMessage } from "@/components/ChatMessage";
+
+interface Message {
+  text: string;
+  isSent: boolean;
+}
 
 const Index = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     { text: "Hello! How can I help you today?", isSent: false },
   ]);
   const [inputMessage, setInputMessage] = useState("");
@@ -25,7 +31,7 @@ const Index = () => {
     const handleResize = () => {
       if (chatBodyRef.current && window.visualViewport) {
         const headerHeight = 64;
-        const inputHeight = 64; // Reduced input area height
+        const inputHeight = 64;
         const availableHeight = window.visualViewport.height;
         chatBodyRef.current.style.height = `${availableHeight - (headerHeight + inputHeight)}px`;
       }
@@ -41,13 +47,14 @@ const Index = () => {
     };
   }, [isChatOpen]);
 
-  const sendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputMessage.trim()) {
       setMessages((prev) => [...prev, { text: inputMessage, isSent: true }]);
       setInputMessage("");
-      // Blur input to close keyboard after sending
       inputRef.current?.blur();
+      
+      // Simulate API response
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
@@ -55,6 +62,11 @@ const Index = () => {
         ]);
       }, 1000);
     }
+  };
+
+  const handleClose = () => {
+    setIsChatOpen(false);
+    setInputMessage("");
   };
 
   return (
@@ -75,7 +87,7 @@ const Index = () => {
             <div className="p-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold">Chat Assistant</h2>
               <button
-                onClick={() => setIsChatOpen(false)}
+                onClick={handleClose}
                 className="p-2 hover:bg-violet-500/10 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -86,35 +98,18 @@ const Index = () => {
           {/* Chat Body */}
           <div 
             ref={chatBodyRef}
-            className="flex-1 overflow-y-auto pt-16 pb-16 px-4 space-y-4 touch-pan-y overscroll-contain"
+            className="flex-1 overflow-y-auto pt-20 pb-16 px-4 space-y-6 touch-pan-y overscroll-contain"
             style={{ height: 'calc(100vh - 128px)' }}
           >
             {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "max-w-[70%] animate-fade-in",
-                  msg.isSent ? "ml-auto" : "mr-auto"
-                )}
-              >
-                <div
-                  className={cn(
-                    "px-4 py-2 rounded-lg",
-                    msg.isSent
-                      ? "bg-violet-500 text-white"
-                      : "bg-violet-100/10 backdrop-blur-sm border border-violet-500/10"
-                  )}
-                >
-                  {msg.text}
-                </div>
-              </div>
+              <ChatMessage key={index} text={msg.text} isSent={msg.isSent} />
             ))}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Fixed Input Area */}
           <form
-            onSubmit={sendMessage}
+            onSubmit={handleSendMessage}
             className="fixed bottom-0 left-0 right-0 h-16 z-[70] bg-background border-t border-violet-500/10"
           >
             <div className="h-full px-4 flex gap-2 items-center">
@@ -129,6 +124,7 @@ const Index = () => {
               <button
                 type="submit"
                 className="h-10 w-10 flex items-center justify-center bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors"
+                aria-label="Send message"
               >
                 <Send className="w-5 h-5" />
               </button>
