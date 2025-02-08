@@ -23,7 +23,6 @@ const Index = () => {
 
   useEffect(() => {
     if (isChatOpen) {
-      // Add chat-open class to body
       document.body.classList.add('chat-open');
       
       return () => {
@@ -59,8 +58,8 @@ const Index = () => {
       )}
 
       {isChatOpen && (
-        <div className="fixed inset-0 bg-background flex flex-col h-[100dvh] touch-none">
-          <div className="bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-background">
+          <div className="fixed inset-x-0 top-0 z-50 bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Chat Assistant</h2>
             <button
               onClick={() => setIsChatOpen(false)}
@@ -72,7 +71,7 @@ const Index = () => {
 
           <div 
             ref={chatBodyRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4"
+            className="h-[calc(100dvh-8rem)] mt-16 overflow-y-auto p-4 space-y-4 touch-none"
           >
             {messages.map((msg, index) => (
               <div
@@ -99,7 +98,7 @@ const Index = () => {
 
           <form
             onSubmit={sendMessage}
-            className="p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
+            className="fixed inset-x-0 bottom-0 p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
           >
             <div className="flex gap-2">
               <input
