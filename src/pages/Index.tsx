@@ -50,8 +50,8 @@ const Index = () => {
 
   useEffect(() => {
     if (isChatOpen) {
-      // Prevent body scrolling when chat is open
-      document.body.style.overflow = 'hidden';
+      // Add chat-open class to body
+      document.body.classList.add('chat-open');
       
       // Initial setup
       handleViewportChange();
@@ -60,7 +60,7 @@ const Index = () => {
       window.addEventListener("resize", handleViewportChange);
       
       return () => {
-        document.body.style.overflow = '';
+        document.body.classList.remove('chat-open');
         window.visualViewport?.removeEventListener("resize", handleViewportChange);
         window.removeEventListener("resize", handleViewportChange);
       };
@@ -94,8 +94,8 @@ const Index = () => {
       )}
 
       {isChatOpen && (
-        <div className="fixed inset-0 bg-background flex flex-col overflow-hidden animate-fade-in">
-          <div className="bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-background touch-none flex flex-col overflow-hidden animate-fade-in">
+          <div className="bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between sticky top-0 z-50">
             <h2 className="text-lg font-semibold">Chat Assistant</h2>
             <button
               onClick={() => setIsChatOpen(false)}
@@ -135,7 +135,7 @@ const Index = () => {
           <form
             onSubmit={sendMessage}
             className={cn(
-              "p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10 transition-transform duration-300 ease-in-out",
+              "p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10 transition-transform duration-300 ease-in-out sticky bottom-0 z-50",
               keyboardOpen ? "translate-y-0" : "translate-y-0"
             )}
           >
