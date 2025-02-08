@@ -22,12 +22,25 @@ const Index = () => {
   }, [messages, scrollToBottom]);
 
   useEffect(() => {
+    const handleResize = () => {
+      if (chatBodyRef.current && window.visualViewport) {
+        const headerHeight = 64; // Match the header's height
+        const inputHeight = 80; // Approximate input area height
+        const availableHeight = window.visualViewport.height - headerHeight;
+        
+        chatBodyRef.current.style.height = `${availableHeight}px`;
+        chatBodyRef.current.style.marginTop = `${headerHeight}px`;
+      }
+    };
+
     if (isChatOpen) {
-      document.body.classList.add('chat-open');
-      return () => {
-        document.body.classList.remove('chat-open');
-      };
+      window.visualViewport?.addEventListener('resize', handleResize);
+      handleResize(); // Initial calculation
     }
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+    };
   }, [isChatOpen]);
 
   const sendMessage = (e: React.FormEvent) => {
@@ -57,9 +70,9 @@ const Index = () => {
       )}
 
       {isChatOpen && (
-        <>
-          {/* Fixed Header Layer */}
-          <div className="fixed top-0 left-0 right-0 z-[70] bg-white/5 backdrop-blur-xl border-b border-violet-500/10">
+        <div className="fixed inset-0 flex flex-col">
+          {/* Fixed Header */}
+          <div className="fixed top-0 left-0 right-0 h-16 z-[70] bg-background/95 backdrop-blur-xl border-b border-violet-500/10">
             <div className="p-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold">Chat Assistant</h2>
               <button
@@ -71,60 +84,58 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Chat Container */}
-          <div className="fixed inset-0 bg-background" style={{ paddingTop: '64px' }}>
-            <div 
-              ref={chatBodyRef}
-              className="h-[calc(100%-128px)] overflow-y-auto p-4 space-y-4 touch-none"
-            >
-              {messages.map((msg, index) => (
+          {/* Chat Body */}
+          <div 
+            ref={chatBodyRef}
+            className="flex-1 overflow-y-auto pt-16 pb-24 p-4 space-y-4 touch-pan-y"
+          >
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "max-w-[70%] animate-fade-in",
+                  msg.isSent ? "ml-auto" : "mr-auto"
+                )}
+              >
                 <div
-                  key={index}
                   className={cn(
-                    "max-w-[70%] animate-fade-in",
-                    msg.isSent ? "ml-auto" : "mr-auto"
+                    "px-4 py-2 rounded-2xl",
+                    msg.isSent
+                      ? "bg-violet-500 text-white"
+                      : "bg-violet-100/10 backdrop-blur-sm border border-violet-500/10"
                   )}
                 >
-                  <div
-                    className={cn(
-                      "px-4 py-2 rounded-2xl",
-                      msg.isSent
-                        ? "bg-violet-500 text-white"
-                        : "bg-violet-100/10 backdrop-blur-sm border border-violet-500/10"
-                    )}
-                  >
-                    {msg.text}
-                  </div>
+                  {msg.text}
                 </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Fixed Input Layer */}
-            <form
-              onSubmit={sendMessage}
-              className="fixed bottom-0 left-0 right-0 z-[70] p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
-            >
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  ref={inputRef}
-                  className="flex-1 px-4 py-2 rounded-full bg-violet-100/10 border border-violet-500/10 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all"
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  className="p-2 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
               </div>
-            </form>
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        </>
+
+          {/* Fixed Input Area */}
+          <form
+            onSubmit={sendMessage}
+            className="fixed bottom-0 left-0 right-0 h-24 z-[70] bg-background/95 backdrop-blur-xl border-t border-violet-500/10"
+          >
+            <div className="p-4 flex gap-2">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder="Type a message..."
+                ref={inputRef}
+                className="flex-1 px-4 py-2 rounded-full bg-violet-100/10 border border-violet-500/10 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all"
+                autoFocus
+              />
+              <button
+                type="submit"
+                className="p-2 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );
