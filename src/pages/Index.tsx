@@ -59,7 +59,7 @@ const Index = () => {
 
       {isChatOpen && (
         <div className="fixed inset-0 bg-background">
-          <div className="fixed inset-x-0 top-0 z-50 bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between">
+          <header className="fixed top-0 inset-x-0 z-[9999] bg-white/5 backdrop-blur-xl border-b border-violet-500/10 p-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Chat Assistant</h2>
             <button
               onClick={() => setIsChatOpen(false)}
@@ -67,11 +67,15 @@ const Index = () => {
             >
               <X className="w-5 h-5" />
             </button>
-          </div>
+          </header>
 
           <div 
             ref={chatBodyRef}
-            className="h-[calc(100dvh-8rem)] mt-16 overflow-y-auto p-4 space-y-4 touch-none"
+            className="h-[calc(100vh-8rem)] mt-16 overflow-y-auto p-4 space-y-4 touch-none"
+            style={{
+              height: 'calc(100vh - 8rem)',
+              paddingBottom: '4rem'
+            }}
           >
             {messages.map((msg, index) => (
               <div
@@ -98,7 +102,7 @@ const Index = () => {
 
           <form
             onSubmit={sendMessage}
-            className="fixed inset-x-0 bottom-0 p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
+            className="fixed bottom-0 inset-x-0 z-[9999] p-4 bg-white/5 backdrop-blur-xl border-t border-violet-500/10"
           >
             <div className="flex gap-2">
               <input
