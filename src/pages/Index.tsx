@@ -24,18 +24,16 @@ const Index = () => {
   useEffect(() => {
     const handleResize = () => {
       if (chatBodyRef.current && window.visualViewport) {
-        const headerHeight = 64; // Match the header's height
-        const inputHeight = 80; // Approximate input area height
-        const availableHeight = window.visualViewport.height - headerHeight;
-        
-        chatBodyRef.current.style.height = `${availableHeight}px`;
-        chatBodyRef.current.style.marginTop = `${headerHeight}px`;
+        const headerHeight = 64;
+        const inputHeight = 64; // Reduced input area height
+        const availableHeight = window.visualViewport.height;
+        chatBodyRef.current.style.height = `${availableHeight - (headerHeight + inputHeight)}px`;
       }
     };
 
     if (isChatOpen) {
       window.visualViewport?.addEventListener('resize', handleResize);
-      handleResize(); // Initial calculation
+      handleResize();
     }
 
     return () => {
@@ -48,6 +46,8 @@ const Index = () => {
     if (inputMessage.trim()) {
       setMessages((prev) => [...prev, { text: inputMessage, isSent: true }]);
       setInputMessage("");
+      // Blur input to close keyboard after sending
+      inputRef.current?.blur();
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
@@ -55,7 +55,6 @@ const Index = () => {
         ]);
       }, 1000);
     }
-    inputRef.current?.focus();
   };
 
   return (
@@ -70,7 +69,7 @@ const Index = () => {
       )}
 
       {isChatOpen && (
-        <div className="fixed inset-0 flex flex-col">
+        <div className="fixed inset-0 flex flex-col bg-background">
           {/* Fixed Header */}
           <div className="fixed top-0 left-0 right-0 h-16 z-[70] bg-background/95 backdrop-blur-xl border-b border-violet-500/10">
             <div className="p-4 flex items-center justify-between">
@@ -87,7 +86,8 @@ const Index = () => {
           {/* Chat Body */}
           <div 
             ref={chatBodyRef}
-            className="flex-1 overflow-y-auto pt-16 pb-24 p-4 space-y-4 touch-pan-y"
+            className="flex-1 overflow-y-auto pt-16 pb-16 px-4 space-y-4 touch-pan-y overscroll-contain"
+            style={{ height: 'calc(100vh - 128px)' }}
           >
             {messages.map((msg, index) => (
               <div
@@ -99,7 +99,7 @@ const Index = () => {
               >
                 <div
                   className={cn(
-                    "px-4 py-2 rounded-2xl",
+                    "px-4 py-2 rounded-lg",
                     msg.isSent
                       ? "bg-violet-500 text-white"
                       : "bg-violet-100/10 backdrop-blur-sm border border-violet-500/10"
@@ -115,21 +115,20 @@ const Index = () => {
           {/* Fixed Input Area */}
           <form
             onSubmit={sendMessage}
-            className="fixed bottom-0 left-0 right-0 h-24 z-[70] bg-background/95 backdrop-blur-xl border-t border-violet-500/10"
+            className="fixed bottom-0 left-0 right-0 h-16 z-[70] bg-background border-t border-violet-500/10"
           >
-            <div className="p-4 flex gap-2">
+            <div className="h-full px-4 flex gap-2 items-center">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Type a message..."
                 ref={inputRef}
-                className="flex-1 px-4 py-2 rounded-full bg-violet-100/10 border border-violet-500/10 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all"
-                autoFocus
+                className="flex-1 h-10 px-4 rounded-lg bg-violet-100/10 border border-violet-500/10 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all"
               />
               <button
                 type="submit"
-                className="p-2 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors"
+                className="h-10 w-10 flex items-center justify-center bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors"
               >
                 <Send className="w-5 h-5" />
               </button>
